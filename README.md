@@ -2,7 +2,9 @@
 
 A Godot 4 aircraft landing simulator where players manage throttle, descent rate, and crosswind alignment while receiving real-time telemetry and touchdown scoring.
 
-**[▶ Play in browser](https://YOUR_ITCH_URL)**
+<img width="700" alt="Screenshot 2026-05-22 at 10 52 40 PM" src="https://github.com/user-attachments/assets/cc853f66-0e60-4491-83d6-f242e8d0142e" />
+
+**[▶ Play in browser](https://aj864.itch.io/descent)**
 
 ## Controls
 
