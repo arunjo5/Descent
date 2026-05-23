@@ -1,0 +1,30 @@
+# Godot 4
+.godot/
+.import/
+
+# Exports
+exports/
+build/
+*.exe
+*.x86_64
+*.dmg
+*.app/
+*.apk
+*.aab
+*.pck
+*.zip
+
+# Generated translations
+*.translation
+
+# Mono / C# (unused but standard)
+.mono/
+data_*/
+mono_crash.*.json
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
