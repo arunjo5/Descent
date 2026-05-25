@@ -13,6 +13,12 @@ var wind_system: WindSystem
 var evaluator: LandingEvaluator
 var hud: FlightHUD
 var follow_camera: Camera3D
+var time_of_day: TimeOfDay
+var weather: WeatherSystem
+var approach_lights: ApproachLights
+
+var _world_environment: WorldEnvironment
+var _sun: DirectionalLight3D
 
 
 func _ready() -> void:
@@ -28,6 +34,7 @@ func _ready() -> void:
 	_build_camera()
 	_build_evaluator()
 	_build_hud()
+	_build_time_and_weather()
 
 
 func _process(delta: float) -> void:
@@ -49,6 +56,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_debug_off_runway()
 	elif event.is_action_pressed("debug_toggle_wind"):
 		wind_system.toggle_strong()
+	elif event.is_action_pressed("cycle_time_of_day"):
+		time_of_day.cycle()
+	elif event.is_action_pressed("cycle_weather"):
+		weather.cycle()
 
 
 func _build_environment() -> void:
@@ -70,15 +81,15 @@ func _build_environment() -> void:
 	env.fog_light_color = Color(0.75, 0.82, 0.9)
 	env.fog_density = 0.0025
 
-	var we := WorldEnvironment.new()
-	we.environment = env
-	add_child(we)
+	_world_environment = WorldEnvironment.new()
+	_world_environment.environment = env
+	add_child(_world_environment)
 
-	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-55, -30, 0)
-	sun.light_energy = 1.05
-	sun.shadow_enabled = true
-	add_child(sun)
+	_sun = DirectionalLight3D.new()
+	_sun.rotation_degrees = Vector3(-55, -30, 0)
+	_sun.light_energy = 1.05
+	_sun.shadow_enabled = true
+	add_child(_sun)
 
 
 func _build_ground() -> void:
@@ -170,25 +181,10 @@ func _build_runway() -> void:
 
 
 func _build_approach_lights() -> void:
-	var light_mat := StandardMaterial3D.new()
-	light_mat.albedo_color = Color(1.0, 0.9, 0.4)
-	light_mat.emission_enabled = true
-	light_mat.emission = Color(1.0, 0.85, 0.3)
-	light_mat.emission_energy_multiplier = 2.5
-
-	var threshold_z := RUNWAY_LENGTH * 0.5
-	for i in 12:
-		var z := threshold_z + 12.0 + i * 18.0
-		for x_offset: float in [-3.0, 0.0, 3.0]:
-			var marker := MeshInstance3D.new()
-			var mm := CylinderMesh.new()
-			mm.top_radius = 0.25
-			mm.bottom_radius = 0.25
-			mm.height = 0.4
-			marker.mesh = mm
-			marker.material_override = light_mat
-			marker.position = Vector3(x_offset, 0.5, z)
-			add_child(marker)
+	approach_lights = ApproachLights.new()
+	approach_lights.name = "ApproachLights"
+	approach_lights.runway_length = RUNWAY_LENGTH
+	add_child(approach_lights)
 
 
 func _build_buildings() -> void:
@@ -595,6 +591,27 @@ func _build_hud() -> void:
 	hud.aircraft = aircraft
 	hud.wind_system = wind_system
 	add_child(hud)
+
+
+func _build_time_and_weather() -> void:
+	time_of_day = TimeOfDay.new()
+	time_of_day.name = "TimeOfDay"
+	time_of_day.environment = _world_environment.environment
+	time_of_day.sun = _sun
+	add_child(time_of_day)
+
+	weather = WeatherSystem.new()
+	weather.name = "WeatherSystem"
+	weather.environment = _world_environment.environment
+	weather.aircraft = aircraft
+	add_child(weather)
+
+	time_of_day.time_changed.connect(weather.on_time_changed)
+	time_of_day.time_changed.connect(approach_lights.on_time_of_day_changed)
+
+	hud.time_of_day = time_of_day
+	hud.weather = weather
+	time_of_day.set_phase(TimeOfDay.Phase.DAY)
 
 
 func _on_aircraft_landed(result: Dictionary) -> void:

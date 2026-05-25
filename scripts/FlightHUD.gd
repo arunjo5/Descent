@@ -3,6 +3,8 @@ extends CanvasLayer
 
 var aircraft: AircraftController = null
 var wind_system: WindSystem = null
+var time_of_day: TimeOfDay = null
+var weather: WeatherSystem = null
 
 var _alt_label: Label
 var _spd_label: Label
@@ -13,6 +15,8 @@ var _roll_label: Label
 var _flap_label: Label
 var _gear_label: Label
 var _wind_label: Label
+var _weather_label: Label
+var _tod_label: Label
 var _hint_label: Label
 
 var _result_panel: PanelContainer
@@ -44,6 +48,10 @@ func _process(_delta: float) -> void:
 
 	if wind_system != null:
 		_wind_label.text = "WIND     %s" % wind_system.describe()
+	if weather != null:
+		_weather_label.text = "WX       %s" % weather.describe()
+	if time_of_day != null:
+		_tod_label.text = "TOD      %s" % time_of_day.describe()
 
 
 func show_landing_result(result: Dictionary) -> void:
@@ -97,34 +105,38 @@ func _build_ui() -> void:
 	telemetry.add_theme_constant_override("separation", 3)
 	telemetry_panel.add_child(telemetry)
 
-	_alt_label   = _make_telemetry_label()
-	_spd_label   = _make_telemetry_label()
-	_vs_label    = _make_telemetry_label()
-	_thr_label   = _make_telemetry_label()
-	_pitch_label = _make_telemetry_label()
-	_roll_label  = _make_telemetry_label()
-	_flap_label  = _make_telemetry_label()
-	_gear_label  = _make_telemetry_label()
-	_wind_label  = _make_telemetry_label()
+	_alt_label     = _make_telemetry_label()
+	_spd_label     = _make_telemetry_label()
+	_vs_label      = _make_telemetry_label()
+	_thr_label     = _make_telemetry_label()
+	_pitch_label   = _make_telemetry_label()
+	_roll_label    = _make_telemetry_label()
+	_flap_label    = _make_telemetry_label()
+	_gear_label    = _make_telemetry_label()
+	_wind_label    = _make_telemetry_label()
+	_weather_label = _make_telemetry_label()
+	_tod_label     = _make_telemetry_label()
 
 	for lbl in [_alt_label, _spd_label, _vs_label, _thr_label,
-				_pitch_label, _roll_label, _flap_label, _gear_label, _wind_label]:
+				_pitch_label, _roll_label, _flap_label, _gear_label,
+				_wind_label, _weather_label, _tod_label]:
 		telemetry.add_child(lbl)
 
 	var hint_panel := PanelContainer.new()
 	hint_panel.anchor_top = 1.0
 	hint_panel.anchor_bottom = 1.0
-	hint_panel.offset_top = -68
+	hint_panel.offset_top = -92
 	hint_panel.offset_bottom = -16
 	hint_panel.offset_left = 20
-	hint_panel.offset_right = 540
+	hint_panel.offset_right = 580
 	hint_panel.add_theme_stylebox_override("panel", _make_hud_stylebox())
 	root.add_child(hint_panel)
 
 	_hint_label = Label.new()
 	_hint_label.text = (
 		"W/S - throttle   Up/Down - pitch   Left/Right - roll   A/D - yaw\n" +
-		"F - flaps   G - gear   C - camera   R - restart   Esc - quit"
+		"F - flaps   G - gear   C - camera   R - restart   Esc - quit\n" +
+		"T - time of day   Y - weather"
 	)
 	_hint_label.add_theme_color_override("font_color", Color(0.92, 0.95, 1.0))
 	_hint_label.add_theme_font_size_override("font_size", 14)
