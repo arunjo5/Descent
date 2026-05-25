@@ -18,7 +18,8 @@ A Godot 4 aircraft landing simulator where players manage throttle, descent rate
 | `G` | Toggle gear |
 | `C` | Switch camera |
 | `R` | Restart |
-
+| `T` | Cycle time of day (Dawn / Day / Dusk / Night) |
+| `Y` | Cycle weather (Clear / Rain / Snow / Fog) |
 ## Run locally
 
 ```bash
